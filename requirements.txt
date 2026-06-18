@@ -1,0 +1,23 @@
+# Web framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+websockets==13.1
+
+# Database
+sqlalchemy==2.0.36
+asyncmy==0.2.10
+alembic==1.14.0
+
+# IA
+anthropic==0.40.0
+google-genai>=1.0.0
+tenacity==9.0.0
+
+# Validação e config
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-multipart==0.0.19
+python-dotenv==1.0.1
+
+# Observabilidade
+structlog==24.4.0
