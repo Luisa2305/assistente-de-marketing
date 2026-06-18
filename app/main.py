@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-import os
 from pathlib import Path
 
 import structlog
@@ -18,6 +17,9 @@ from app.models import (
 )  # noqa: F401 — registra modelos no metadata
 from app.observability.noop import NoOpTracer
 from app.services.ai_service import AIService
+
+UPLOAD_DIR = Path("/tmp/uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def _configure_logging() -> None:
@@ -68,13 +70,13 @@ def _build_ai_service() -> AIService:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _configure_logging()
-    Path("uploads").mkdir(exist_ok=True)
     app.state.ai_service = _build_ai_service()
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     yield
+
     await engine.dispose()
 
 
@@ -96,8 +98,5 @@ app.add_middleware(
 app.include_router(chat_ws_router, prefix=settings.API_V1_PREFIX)
 app.include_router(conversations_router, prefix=settings.API_V1_PREFIX)
 app.include_router(upload_router, prefix=settings.API_V1_PREFIX)
-
-UPLOAD_DIR = Path("/tmp/uploads")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
